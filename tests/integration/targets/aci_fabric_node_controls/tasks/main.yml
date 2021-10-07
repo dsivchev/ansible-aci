@@ -1,0 +1,212 @@
+  # Test code for the ACI modules
+  # Copyright: (c) 2017, Bruno Calogero <brunocalogero@hotmail.com>
+
+  # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+  - name: Test that we have an ACI APIC host, ACI username and ACI password
+    fail:
+      msg: 'Please define the following variables: aci_hostname, aci_username and aci_password.'
+    when: aci_hostname is not defined or aci_username is not defined or aci_password is not defined
+
+  
+  # CLEAN ENVIRONMENT
+  - name: Remove fabric node profile
+    aci_fabric_node_controls: &aci_fabric_node_controls_absent
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        policy: test_fabnode_pol
+        state: absent
+    delegate_to: localhost
+      
+  # ADD FABRIC NODE CONTROLS PROFILE
+  - name: Add fabric node profile (check mode)
+    aci_fabric_node_controls: &aci_fabric_node_controls_present
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        policy: test_fabnode_pol
+        state: present
+        dom_control: enable
+    delegate_to: localhost
+    check_mode: yes
+    register: cm_add_fabric_node_controls
+
+  - name: Add fabric node (normal mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_present
+    register: nm_add_fabric_node_controls
+
+  - name: Add fabric node again (check_mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_present
+    check_mode: yes
+    register: cm_add_fabric_node_controls_again
+
+  - name: Add fabric node again (normal mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_present
+    register: nm_add_fabric_node_controls_again
+
+  - name: Verify add_fabric_node_controls
+    assert:
+      that:
+      - cm_add_fabric_node_controls is changed
+      - nm_add_fabric_node_controls is changed
+      - cm_add_fabric_node_controls_again is not changed
+      - nm_add_fabric_node_controls_again is not changed
+
+  # CHANGE FABRIC NODE CONTROLS 
+  - name: Change description of fabric node (check_mode)
+    aci_fabric_node_controls:
+      <<: *aci_fabric_node_controls_present
+      description: Ansible test fabric node controls
+    check_mode: yes
+    register: cm_add_fabric_node_controls_descr
+
+  # - debug:
+  #     var: cm_add_fabric_node_controls_descr
+
+  - name: Change description of fabric node (normal mode)
+    aci_fabric_node_controls:
+      <<: *aci_fabric_node_controls_present
+      description: Ansible test fabric node controls
+    register: nm_add_fabric_node_controls_descr
+
+  # - debug:
+  #     var: nm_add_fabric_node_controls_descr
+
+  - name: Change description of fabric node controls again (check_mode)
+    aci_fabric_node_controls:
+      <<: *aci_fabric_node_controls_present
+      description: Ansible test fabric node controls
+    check_mode: yes
+    register: cm_add_fabric_node_controls_descr_again
+
+  # - debug:
+  #     var: cm_add_fabric_node_controls_descr_again
+
+  - name: Change description of fabric node controls again (normal mode)
+    aci_fabric_node_controls:
+      <<: *aci_fabric_node_controls_present
+      description: Ansible test fabric node controls
+    register: nm_add_fabric_node_controls_descr_again
+
+  # - debug:
+  #     var: nm_add_fabric_node_controls_descr_again
+
+  - name: Verify add_fabric_node_descr
+    assert:
+      that:
+      - cm_add_fabric_node_controls_descr is changed
+      - nm_add_fabric_node_controls_descr is changed
+      - cm_add_fabric_node_controls_descr_again is not changed
+      - nm_add_fabric_node_controls_descr_again is not changed 
+
+
+  # ADD FABRIC NODE CONTROLS AGAIN
+  - name: Add fabric node controls again with no description (check_mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_present
+    check_mode: yes
+    register: cm_add_fabric_node_controls_again_no_descr
+
+  - name: Add fabric node again with no description (normal mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_present
+    register: nm_add_fabric_node_controls_again_no_descr
+
+  - name: Verify add_fabric_node_controls_again_no_descr
+    assert:
+      that:
+      - cm_add_fabric_node_controls_again_no_descr is not changed
+      - nm_add_fabric_node_controls_again_no_descr is not changed
+
+
+  # QUERY ALL FABRIC CONTROLS POLICIES
+  - name: Query fabric controls policies (check_mode)
+    aci_fabric_node_controls: &aci_fabric_node_controls_query
+      host: '{{ aci_hostname }}'
+      username: '{{ aci_username }}'
+      password: '{{ aci_password }}'
+      validate_certs: '{{ aci_validate_certs | default(false) }}'
+      use_ssl: '{{ aci_use_ssl | default(true) }}'
+      use_proxy: '{{ aci_use_proxy | default(true) }}'
+      output_level: '{{ aci_output_level | default("info") }}'
+      state: query
+    check_mode: yes
+    register: cm_query_all_fabric_controls
+  
+  - debug:
+      var: cm_query_all_fabric_controls
+
+
+  - name: Query all fabric controls policies (normal mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_query
+    register: nm_query_all_fabric_controls
+
+  - name: Verify query_all_fabric_nodes
+    assert:
+      that:
+      - cm_query_all_fabric_controls is not changed
+      - nm_query_all_fabric_controls is not changed
+      - cm_query_all_fabric_controls == nm_query_all_fabric_controls
+
+
+  # QUERY A FABRIC CONTROLS POLICY
+  - name: Query fabric controls policy (check_mode)
+    aci_fabric_node_controls: 
+      <<: *aci_fabric_node_controls_query
+      policy: test_fabnode_pol
+    check_mode: yes
+    register: cm_query_fabric_controls_policy
+  
+  - debug:
+      var: cm_query_fabric_controls_policy
+
+  - name: Query a fabric controls policy (normal mode)
+    aci_fabric_node_controls: 
+      <<: *aci_fabric_node_controls_query
+      policy: test_fabnode_pol
+    register: nm_query_fabric_controls_policy
+
+  - debug:
+      var: nm_query_fabric_controls_policy
+
+  - name: Verify query a fabric controls policy
+    assert:
+      that:
+      - cm_query_fabric_controls_policy is not changed
+      - nm_query_fabric_controls_policy is not changed
+      - cm_query_fabric_controls_policy == nm_query_fabric_controls_policy
+
+
+  # REMOVE FABRIC CONTROLS POLICY
+  - name: Remove fabric_node controls policy (check_mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_absent
+    check_mode: yes
+    register: cm_remove_fabric_controls
+
+  - name: Remove fabric_node controls policy (normal mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_absent
+    register: nm_remove_fabric_controls
+
+  - name: Remove fabric_node controls policy again (check_mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_absent
+    check_mode: yes
+    register: cm_remove_fabric_controls_again
+
+  - name: Remove fabric_node controls policy again (normal mode)
+    aci_fabric_node_controls: *aci_fabric_node_controls_absent
+    register: nm_remove_fabric_controls_again
+
+  - name: Verify remove_fabric_controls removal
+    assert:
+      that:
+      - cm_remove_fabric_controls is changed
+      - nm_remove_fabric_controls is changed
+      - cm_remove_fabric_controls_again is not changed
+      - nm_remove_fabric_controls_again is not changed

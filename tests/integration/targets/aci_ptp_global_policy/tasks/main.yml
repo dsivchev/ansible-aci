@@ -1,0 +1,160 @@
+
+# Test code for the ACI modules
+# Copyright: (c) 2017, Bruno Calogero <brunocalogero@hotmail.com>
+
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+- name: Test that we have an ACI APIC host, ACI username and ACI password
+  fail:
+    msg: 'Please define the following variables: aci_hostname, aci_username and aci_password.'
+  when: aci_hostname is not defined or aci_username is not defined or aci_password is not defined
+
+
+# QUERY GLOBAL PTP PROFILES CONFIG
+  - name: Query global PTP profiles config
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        state: query
+    delegate_to: localhost
+
+  # SETUP GLOBAL PTP AES67 PROFILE
+  - name: Enable global PTP profile 'aes67'
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        admin_state: enabled
+        state: present
+    delegate_to: localhost
+
+  # DISABLE GLOBAL PTP AES67 PROFILE
+  - name: Disable global PTP profile 'aes67'
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        profile: aes67
+        admin_state: disabled
+        state: absent
+    delegate_to: localhost
+
+  # SETUP GLOBAL PTP DEFAULT PROFILE
+  - name: Enable global PTP profile 'default'
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        profile: default
+        state: present
+    delegate_to: localhost
+
+  # DISABLE GLOBAL PTP DEFAULT PROFILE
+  - name: Disable global PTP profile 'default'
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        profile: default
+        state: absent
+    delegate_to: localhost
+
+  # SETUP GLOBAL PTP SMPTE PROFILE
+  - name: Enable global PTP profile 'smpte'
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        profile: smpte
+        state: present
+    delegate_to: localhost
+
+  # QUERY GLOBAL PTP SMPTE PROFILE
+  - name: Query global PTP profiles config
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        profile: smpte
+        state: query
+    delegate_to: localhost
+
+  # DISABLE GLOBAL PTP SMPTE PROFILE
+  - name: Disable global PTP profile 'smpte'
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        profile: smpte
+        state: absent
+    delegate_to: localhost
+
+  # DISABLE AGAIN GLOBAL PTP SMPTE PROFILE
+  - name: Disable global PTP profile 'smpte'
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        profile: smpte
+        state: absent
+    delegate_to: localhost
+
+  # QUERY GLOBAL PTP PROFILES CONFIG
+  - name: Query global PTP profiles config
+    aci_ptp_global_policy:
+        host: '{{ aci_hostname }}'
+        username: '{{ aci_username }}'
+        password: '{{ aci_password }}'
+        validate_certs: '{{ aci_validate_certs | default(false) }}'
+        use_ssl: '{{ aci_use_ssl | default(true) }}'
+        use_proxy: '{{ aci_use_proxy | default(true) }}'
+        output_level: '{{ aci_output_level | default("info") }}'
+        serial: ansible_test
+        state: query
+    delegate_to: localhost
